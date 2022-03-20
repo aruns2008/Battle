@@ -5,23 +5,25 @@ public class BattleShips {
     public static int col = 5;
     public static int computerShips;
     public static int playerShips;
+    public static int playerStrikeCount;
+    public static int computerStrikeCount;
+    public static int playerMissedGuess;
+    public static int playerHits;
+    public static int computerMissedGuess;
+    public static int computerHits;
     public static String[][] Board = new String[row][col];
     public static int[][] MissedGuess = new int[row][col];
 
     public static void main(String[] args) {
         System.out.println();
         System.out.println("           ****Battle Ship game****");
-
         createOceanMap();
-
         deployPlayerShips();
-
         deployComputerShips();
-
         do {
             battle();
-        } while (BattleShips.playerShips != 0 && BattleShips.computerShips != 0);
-
+        } while ((BattleShips.playerShips != 0 && BattleShips.computerShips != 0)
+                && (BattleShips.playerStrikeCount < 5 && BattleShips.computerStrikeCount < 5));
         gameOver();
     }
 
@@ -43,8 +45,6 @@ public class BattleShips {
             }
             System.out.println();
         }
-
-        // Last section of Ocean Map
         System.out.print("  ");
         for (int i = 0; i < col; i++)
             System.out.print(i);
@@ -92,7 +92,9 @@ public class BattleShips {
     }
 
     public static void battle() {
+
         playerTurn();
+
         computerTurn();
 
         printOceanMap();
@@ -107,19 +109,18 @@ public class BattleShips {
     public static void playerTurn() {
         System.out.println("Your turn... ");
         int x = -1, y = -1;
-
         do {
             Scanner input = new Scanner(System.in);
             System.out.println("Enter your X Coordinate: ");
             x = input.nextInt();
             System.out.println("Enter your Y Coordinate: ");
             y = input.nextInt();
-
             if ((x >= 0 && x < row) && (y >= 0 && y < col)) {
+                BattleShips.playerStrikeCount++;
                 if (Board[x][y] == "C") {
-
                     System.out.println("Hit");
                     Board[x][y] = "*";
+                    BattleShips.playerHits++;
                     --BattleShips.computerShips;
                 } else if (Board[x][y] == "P") {
                     System.out.println("You hit your own ship...!");
@@ -129,18 +130,15 @@ public class BattleShips {
                 } else if (Board[x][y] == ".") {
                     System.out.println("Player Missed");
                     Board[x][y] = "_";
-
+                    BattleShips.playerMissedGuess++;
                 } else if ((x < 0 || x >= row) || (y < 0 || y >= col))
                     System.out.println(" You cannot hit out side of the grid");
             }
-
         } while ((x < 0 || x >= row) || (y < 0 || y >= col));
-
     }
 
     public static void computerTurn() {
         System.out.println("Computer turn");
-
         int x = -1;
         int y = -1;
         do {
@@ -148,9 +146,11 @@ public class BattleShips {
             y = (int) (Math.random() * 5);
 
             if ((x >= 0 && x < row) && (y >= 0 && y < col)) {
+                BattleShips.computerStrikeCount++;
                 if (Board[x][y] == "P") {
                     System.out.println("You got hit by computer...");
                     Board[x][y] = "#";
+                    BattleShips.computerHits++;
                     --BattleShips.playerShips;
                 } else if (Board[x][y] == "C") {
                     System.out.println("Computer hit their own ship...");
@@ -159,27 +159,84 @@ public class BattleShips {
 
                 } else if (Board[x][y] == ".") {
                     System.out.println("Computer Missed... ");
-                    if (MissedGuess[x][y] != 1) {
-                        MissedGuess[x][y] = 1;
-                    }
+                    BattleShips.computerMissedGuess++;
                 }
             }
-
         } while ((x < 0 || x >= row) || (y < 0 || y >= col));
-
     }
 
     public static void gameOver() {
-
         System.out.println();
         if (BattleShips.playerShips > 0 && BattleShips.computerShips <= 0) {
             System.out.println("Congratulations.. You have won!");
-
+            System.out.println();
+            System.out.println("Misess");
+            System.out.println();
+            System.out.println("Computer : " + BattleShips.computerMissedGuess);
+            System.out.println("Player : " + BattleShips.playerMissedGuess);
+            System.out.println();
+            System.out.println("Hits");
+            System.out.println();
+            System.out.println("Player : " + BattleShips.computerHits);
+            System.out.println("Computer : " + BattleShips.playerHits);
         } else if (BattleShips.computerShips > 0 && BattleShips.playerShips <= 0) {
             System.out.println("Sorry...You lost the battle...");
             System.out.println();
+            System.out.println("Misess");
+            System.out.println();
+            System.out.println("Computer : " + BattleShips.computerMissedGuess);
+            System.out.println("Player : " + BattleShips.playerMissedGuess);
+            System.out.println();
+            System.out.println("Hits");
+            System.out.println();
+            System.out.println("Player : " + BattleShips.computerHits);
+            System.out.println("Computer : " + BattleShips.playerHits);
         }
-
+        if (BattleShips.playerShips != 0 && BattleShips.computerShips != 0) {
+            if (BattleShips.playerShips > BattleShips.computerShips) {
+                System.out.println("The maximum strike limit has been exceeded.");
+                System.out.println();
+                System.out.println("Congratulations.. You have won!");
+                System.out.println();
+                System.out.println("Misess");
+                System.out.println();
+                System.out.println("Computer : " + BattleShips.computerMissedGuess);
+                System.out.println("Player : " + BattleShips.playerMissedGuess);
+                System.out.println();
+                System.out.println("Hits");
+                System.out.println();
+                System.out.println("Player : " + BattleShips.computerHits);
+                System.out.println("Computer : " + BattleShips.playerHits);
+            } else if (BattleShips.playerShips == BattleShips.computerShips) {
+                System.out.println("The maximum strike limit has been exceeded.");
+                System.out.println();
+                System.out.println("The war comes to a draw...");
+                System.out.println();
+                System.out.println("Misess");
+                System.out.println();
+                System.out.println("Computer : " + BattleShips.computerMissedGuess);
+                System.out.println("Player : " + BattleShips.playerMissedGuess);
+                System.out.println();
+                System.out.println("Hits");
+                System.out.println();
+                System.out.println("Player : " + BattleShips.computerHits);
+                System.out.println("Computer : " + BattleShips.playerHits);
+            } else {
+                System.out.println("The maximum strike limit has been exceeded.");
+                System.out.println();
+                System.out.println("Sorry...You lost the battle...");
+                System.out.println();
+                System.out.println("Misess");
+                System.out.println();
+                System.out.println("Computer : " + BattleShips.computerMissedGuess);
+                System.out.println("Player : " + BattleShips.playerMissedGuess);
+                System.out.println();
+                System.out.println("Hits");
+                System.out.println();
+                System.out.println("Player : " + BattleShips.computerHits);
+                System.out.println("Computer : " + BattleShips.playerHits);
+            }
+        }
     }
 
     public static void printOceanMap() {
@@ -188,21 +245,16 @@ public class BattleShips {
         for (int i = 0; i < col; i++)
             System.out.print(i);
         System.out.println();
-
         for (int x = 0; x < Board.length; x++) {
             System.out.print(x + "|");
-
             for (int y = 0; y < Board[x].length; y++) {
                 System.out.print(Board[x][y]);
             }
-
             System.out.println("|" + x);
         }
-
         System.out.print("  ");
         for (int i = 0; i < col; i++)
             System.out.print(i);
         System.out.println();
     }
-
 }
