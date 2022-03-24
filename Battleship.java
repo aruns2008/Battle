@@ -68,16 +68,11 @@ public class Battleship {
     }
 
     public static void battle() {
-
         playerTurn();
-
         computerTurn();
-
         printOceanMapPlayer();
         printOceanMapComputer();
-
         System.out.println();
-
         System.out.println(
                 "Player Ships : " + playerShips + "   Computer Ships : " + computerShips);
         System.out.println();
@@ -86,12 +81,12 @@ public class Battleship {
     public static void playerTurn() {
         System.out.println("Your turn... ");
         int x = -1, y = -1;
-        do {          
+        do {
             BattleshipGame obj = new BattleshipGame();
-            int[] arr = obj.getUserGuess();        
+            int[] arr = obj.getUserGuess();
             x = arr[0];
             y = arr[1];
-            if ((x >= 0 && x < row - 1) && (y >= 0 && y < col - 1)) {
+            if ((x >= 0 && x <= row - 1) && (y >= 0 && y <= col - 1)) {
                 playerStrikeCount++;
                 switch (Battleship.ComputerBoard[x][y].toString().replaceAll("(^\\[|\\]$)", "")) {
                     case "C":
@@ -104,16 +99,18 @@ public class Battleship {
                         System.out.println(TEXT_RED + "Player Missed" + TEXTRESET);
                         Battleship.playerTurnAction(".", "_", x, y);
                         playerMissedGuess++;
+                        System.out.println("p Miss" + playerMissedGuess);
                         break;
                     case "*":
                         System.out.println("Already Hit");
                         playerMissedGuess++;
+                        System.out.println("p Miss" + playerMissedGuess);
                         break;
                     case "_":
                         System.out.println("Already Hit");
                         playerMissedGuess++;
+                        System.out.println("p Miss" + playerMissedGuess);
                         break;
-
                     default:
                         break;
                 }
@@ -142,15 +139,13 @@ public class Battleship {
         do {
             x = (int) (Math.random() * range) + min;
             y = (int) (Math.random() * range) + min;
-
-            if ((x >= 0 && x < row) && (y >= 0 && y < col)) {
+            if ((x >= 0 && x <= row - 1) && (y >= 0 && y <= col - 1)) {
                 computerStrikeCount++;
                 switch (Battleship.PlayerBoard[x][y].toString().replaceAll("(^\\[|\\]$)", "")) {
-                    case "C":
+                    case "P":
                         System.out.println(TEXT_GREEN + "You got hit" + TEXTRESET);
-                        Battleship.computerTurnAction("C", "*", x, y);
+                        Battleship.computerTurnAction("P", "*", x, y);
                         computerHits++;
-
                         --playerShips;
                         break;
                     case ".":
@@ -159,19 +154,17 @@ public class Battleship {
                         computerMissedGuess++;
                         break;
                     case "*":
-                        System.out.println("Already Hit");
                         computerMissedGuess++;
+                        System.out.println("Already Hit");
                         break;
                     case "_":
-                        System.out.println("Already Hit");
                         computerMissedGuess++;
+                        System.out.println("Already Hit");
                         break;
-
                     default:
                         break;
                 }
             }
-
         } while ((x < 0 || x >= row) || (y < 0 || y >= col));
     }
 
