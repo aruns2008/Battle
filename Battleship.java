@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import java.util.*;
 
 public class Battleship {
@@ -7,7 +8,7 @@ public class Battleship {
     final static String TEXTRESET = "\u001B[0m";
     final static String TEXT_RED = "\u001B[31m";
     final static String TEXT_GREEN = "\u001B[32m";
-
+    public char c;
     public static int row = 5;
     public static int col = 5;
     public static int computerShips;
@@ -18,6 +19,7 @@ public class Battleship {
     public static int playerHits = 0;
     public static int computerMissedGuess = 0;
     public static int computerHits = 0;
+    public static char[] C = { 'A', 'B', 'C', 'D', 'E' };
     public static ArrayList<String>[][] PlayerBoard = new ArrayList[row][col];
     public static ArrayList<String>[][] ComputerBoard = new ArrayList[row][col];
 
@@ -25,26 +27,47 @@ public class Battleship {
 
         System.out.println("Deploy Your Ships... ");
         playerShips = 5;
+        int x;
         for (int i = 1; i <= playerShips;) {
             Scanner input1 = new Scanner(System.in);
-            System.out.println("Enter the coordinates for your " + i + " ship");
+            System.out.println("Enter the coordinates for your ship : " + i);
 
-            int[] array = new int[2];
-            for (int j = 0; j < array.length; j++) {
-                array[j] = input1.nextInt();
-            }
-            int x = array[0];
-            int y = array[1];
-            if ((x >= 0 && x < row) && (y >= 0 && y < col) && (Battleship.PlayerBoard[x][y].contains("."))) {
-                Battleship.PlayerBoard[x][y].remove(".");
-                Battleship.PlayerBoard[x][y].add("P");
-                i++;
-            } else if ((x >= 0 && x < row) && (y >= 0 && y < col) && (PlayerBoard[x][y].contains("P"))) {
-                System.out.println("You cannot place two ships on the same location");
-            } else if ((x < 0 || x > row - 1) || (y < 0 || y > col - 1)) {
-                System.out.println("Invalid Entry. You cannot place the ships outside the grid ...");
-            }
-            printOceanMapPlayer();
+            String UserCoordinates = input1.next();
+            boolean match = Pattern.matches("[a-eA-E][0-4]", UserCoordinates);
+            if (match) {
+                String[] part = UserCoordinates.split("(?<=\\D)(?=\\d)");
+                String LetterPart = part[0].toUpperCase();
+                switch (LetterPart) {
+                    case "A":
+                        x = 0;
+                        break;
+                    case "B":
+                        x = 1;
+                        break;
+                    case "C":
+                        x = 2;
+                        break;
+                    case "D":
+                        x = 3;
+                        break;
+                    default:
+                        x = 4;
+                        break;
+                }
+                int number = Integer.parseInt(part[1]);
+                int y = number;
+                if ((x >= 0 && x < row) && (y >= 0 && y < col) && (Battleship.PlayerBoard[x][y].contains("."))) {
+                    Battleship.PlayerBoard[x][y].remove(".");
+                    Battleship.PlayerBoard[x][y].add("P");
+                    i++;
+                } else if ((x >= 0 && x < row) && (y >= 0 && y < col) && (PlayerBoard[x][y].contains("P"))) {
+                    System.out.println("You cannot place two ships on the same location");
+                } else if ((x < 0 || x > row - 1) || (y < 0 || y > col - 1)) {
+                    System.out.println("Invalid Entry. You cannot place the ships outside the grid ...");
+                }
+                printOceanMapPlayer();
+            } else
+                System.out.println("Invalid entry Please enter in the correct format(Eg: A1/a1)");
         }
     }
 
@@ -80,15 +103,43 @@ public class Battleship {
 
     public static void playerTurn() {
         System.out.println("Your turn... ");
-        int x = -1, y = -1;
-        do {
-            BattleshipGame obj = new BattleshipGame();
-            int[] arr = obj.getUserGuess();
-            x = arr[0];
-            y = arr[1];
-            if ((x >= 0 && x <= row - 1) && (y >= 0 && y <= col - 1)) {
+        int x;
+        int y;
+        BattleshipGame obj = new BattleshipGame();
+        String playeHitCoordinates = obj.getUserGuess();
+        boolean match = Pattern.matches("[a-eA-E][0-4]", playeHitCoordinates);
+        if (match) {
+            do {
+
+                String[] part = playeHitCoordinates.split("(?<=\\D)(?=\\d)");
+
+                String LetterPart = part[0].toUpperCase();
+                switch (LetterPart) {
+                    case "A":
+                        x = 0;
+                        break;
+                    case "B":
+                        x = 1;
+                        break;
+                    case "C":
+                        x = 2;
+                        break;
+                    case "D":
+                        x = 3;
+                        break;
+                    case "E":
+                        x = 4;
+                        break;
+                    default:
+                        x = 10;
+                        break;
+                }
+                int number = Integer.parseInt(part[1]);
+                y = number;
+
                 playerStrikeCount++;
-                switch (Battleship.ComputerBoard[x][y].toString().replaceAll("(^\\[|\\]$)", "")) {
+                switch (Battleship.ComputerBoard[x][y].toString().replaceAll("(^\\[|\\]$)",
+                        "")) {
                     case "C":
                         System.out.println(TEXT_GREEN + "Computer Got Hit" + TEXTRESET);
                         Battleship.playerTurnAction("C", "*", x, y);
@@ -99,24 +150,29 @@ public class Battleship {
                         System.out.println(TEXT_RED + "Player Missed" + TEXTRESET);
                         Battleship.playerTurnAction(".", "_", x, y);
                         playerMissedGuess++;
-                        System.out.println("p Miss" + playerMissedGuess);
+
                         break;
                     case "*":
                         System.out.println("Already Hit");
                         playerMissedGuess++;
-                        System.out.println("p Miss" + playerMissedGuess);
+
                         break;
                     case "_":
                         System.out.println("Already Hit");
                         playerMissedGuess++;
-                        System.out.println("p Miss" + playerMissedGuess);
+
                         break;
                     default:
+                        System.out.println("Cannot hit outside of the board");
                         break;
                 }
-            } else if ((x > row - 1) || (y > col - 1))
-                System.out.println("Cannot hit outside of the board");
-        } while ((x < 0 || x >= row) || (y < 0 || y >= col));
+
+            } while ((x < 0 || x >= row) || (y < 0 || y >= col));
+        } else {
+            System.out.println("Invalid / Out of the grid entry..! please enter in the correct format(Eg: A1/a1)");
+            playerTurn();
+        }
+
     }
 
     public static void playerTurnAction(String remove, String add, int x, int y) {
@@ -168,76 +224,44 @@ public class Battleship {
         } while ((x < 0 || x >= row) || (y < 0 || y >= col));
     }
 
+    public static void result() {
+        System.out.println();
+        System.out.println(TEXT_RED + "Misess" + TEXTRESET);
+        System.out.println();
+        System.out.println("Computer : " + TEXT_RED + computerMissedGuess + TEXTRESET);
+        System.out.println("Player : " + TEXT_RED + playerMissedGuess + TEXTRESET);
+        System.out.println();
+        System.out.println(TEXT_GREEN + "Hits" + TEXTRESET);
+        System.out.println();
+        System.out.println("Player : " + TEXT_GREEN + playerHits + TEXTRESET);
+        System.out.println("Computer : " + TEXT_GREEN + computerHits + TEXTRESET);
+    }
+
     public static void gameOver() {
         System.out.println();
         if (Battleship.playerShips > 0 && computerShips <= 0) {
             System.out.println("Congratulations.. You have won!");
-            System.out.println();
-            System.out.println(TEXT_RED + "Misess" + TEXTRESET);
-            System.out.println();
-            System.out.println("Computer : " + TEXT_RED + computerMissedGuess + TEXTRESET);
-            System.out.println("Player : " + TEXT_RED + playerMissedGuess + TEXTRESET);
-            System.out.println();
-            System.out.println(TEXT_GREEN + "Hits" + TEXTRESET);
-            System.out.println();
-            System.out.println("Player : " + TEXT_GREEN + playerHits + TEXTRESET);
-            System.out.println("Computer : " + TEXT_GREEN + computerHits + TEXTRESET);
+            result();
         } else if (computerShips > 0 && playerShips <= 0) {
-            System.out.println("Sorry...You lost the battle...");
-            System.out.println();
-            System.out.println(TEXT_RED + "Misess" + TEXTRESET);
-            System.out.println();
-            System.out.println("Computer : " + TEXT_RED + computerMissedGuess + TEXTRESET);
-            System.out.println("Player : " + TEXT_RED + playerMissedGuess + TEXTRESET);
-            System.out.println();
-            System.out.println(TEXT_GREEN + "Hits" + TEXTRESET);
-            System.out.println();
-            System.out.println("Player : " + TEXT_GREEN + playerHits + TEXTRESET);
-            System.out.println("Computer : " + TEXT_GREEN + computerHits + TEXTRESET);
+            System.out.println("Computer Won...");
+            result();
         }
         if (playerShips != 0 && computerShips != 0) {
             if (playerShips > computerShips) {
                 System.out.println("The maximum strike limit has been exceeded.");
                 System.out.println();
                 System.out.println("Congratulations.. You have won!");
-                System.out.println();
-                System.out.println(TEXT_RED + "Misess" + TEXTRESET);
-                System.out.println();
-                System.out.println("Computer : " + TEXT_RED + computerMissedGuess + TEXTRESET);
-                System.out.println("Player : " + TEXT_RED + playerMissedGuess + TEXTRESET);
-                System.out.println();
-                System.out.println(TEXT_GREEN + "Hits" + TEXTRESET);
-                System.out.println();
-                System.out.println("Player : " + TEXT_GREEN + playerHits + TEXTRESET);
-                System.out.println("Computer : " + TEXT_GREEN + computerHits + TEXTRESET);
+                result();
             } else if (playerShips == computerShips) {
                 System.out.println("The maximum strike limit has been exceeded.");
                 System.out.println();
                 System.out.println("The war comes to a draw...");
-                System.out.println();
-                System.out.println(TEXT_RED + "Misess" + TEXTRESET);
-                System.out.println();
-                System.out.println("Computer : " + TEXT_RED + computerMissedGuess + TEXTRESET);
-                System.out.println("Player : " + TEXT_RED + playerMissedGuess + TEXTRESET);
-                System.out.println();
-                System.out.println(TEXT_GREEN + "Hits" + TEXTRESET);
-                System.out.println();
-                System.out.println("Player : " + TEXT_GREEN + playerHits + TEXTRESET);
-                System.out.println("Computer : " + TEXT_GREEN + computerHits + TEXTRESET);
+                result();
             } else {
                 System.out.println("The maximum strike limit has been exceeded.");
                 System.out.println();
-                System.out.println("Sorry...You lost the battle...");
-                System.out.println();
-                System.out.println(TEXT_RED + "Misess" + TEXTRESET);
-                System.out.println();
-                System.out.println("Computer : " + TEXT_RED + computerMissedGuess + TEXTRESET);
-                System.out.println("Player : " + TEXT_RED + playerMissedGuess + TEXTRESET);
-                System.out.println();
-                System.out.println(TEXT_GREEN + "Hits" + TEXTRESET);
-                System.out.println();
-                System.out.println("Player : " + TEXT_GREEN + playerHits + TEXTRESET);
-                System.out.println("Computer : " + TEXT_GREEN + computerHits + TEXTRESET);
+                System.out.println("Computer Won...");
+                result();
             }
         }
     }
@@ -250,12 +274,12 @@ public class Battleship {
             System.out.print(i);
         System.out.println();
         for (int x = 0; x < PlayerBoard.length; x++) {
-            System.out.print(x + "|");
+            System.out.print(Battleship.C[x] + "|");
             for (int y = 0; y < PlayerBoard[x].length; y++) {
                 String RemoveBracket = Battleship.PlayerBoard[x][y].toString().replaceAll("(^\\[|\\]$)", "");
                 System.out.print(RemoveBracket);
             }
-            System.out.println("|" + x);
+            System.out.println("|" + Battleship.C[x]);
         }
         System.out.print("  ");
         for (int i = 0; i < col; i++)
@@ -271,24 +295,24 @@ public class Battleship {
             System.out.print(i);
         System.out.println();
         for (int x = 0; x < ComputerBoard.length; x++) {
-            System.out.print(x + "|");
+            System.out.print(Battleship.C[x] + "|");
             for (int y = 0; y < ComputerBoard[x].length; y++) {
                 String RemoveBracket = Battleship.ComputerBoard[x][y].toString().replaceAll("(^\\[|\\]$)", "");
                 System.out.print(RemoveBracket);
             }
-            System.out.println("|" + x);
+            System.out.println("|" + Battleship.C[x]);
         }
         System.out.print("  ");
         for (int i = 0; i < col; i++)
             System.out.print(i);
         System.out.println();
     }
-
 }
 
 class BattleshipGame {
 
     public static void GridBuilderPlayer() {
+
         System.out.println();
         System.out.println("           ****Battle Ship game****");
         System.out.println();
@@ -297,15 +321,18 @@ class BattleshipGame {
         for (int i = 0; i < Battleship.col; i++)
             System.out.print(i);
         System.out.println();
+
         for (int i = 0; i < Battleship.PlayerBoard.length; i++) {
+
             for (int j = 0; j < Battleship.PlayerBoard[i].length; j++) {
+
                 Battleship.PlayerBoard[i][j] = new ArrayList<String>();
                 Battleship.PlayerBoard[i][j].add(".");
                 String RemoveBracket = Battleship.PlayerBoard[i][j].toString().replaceAll("(^\\[|\\]$)", "");
-                if (j == 0)
-                    System.out.print(i + "|" + RemoveBracket);
-                else if (j == Battleship.PlayerBoard[i].length - 1)
-                    System.out.print(RemoveBracket + "|" + i);
+                if (j == 0) {
+                    System.out.print(Battleship.C[i] + "|" + RemoveBracket);
+                } else if (j == Battleship.PlayerBoard[i].length - 1)
+                    System.out.print(RemoveBracket + "|" + Battleship.C[i]);
                 else
                     System.out.print(RemoveBracket);
             }
@@ -319,7 +346,6 @@ class BattleshipGame {
     }
 
     public static void GridBuilderComputer() {
-
         System.out.println();
         System.out.println("Computer Board");
         System.out.print("  ");
@@ -332,9 +358,9 @@ class BattleshipGame {
                 Battleship.ComputerBoard[i][j].add(".");
                 String RemoveBracket = Battleship.ComputerBoard[i][j].toString().replaceAll("(^\\[|\\]$)", "");
                 if (j == 0)
-                    System.out.print(i + "|" + RemoveBracket);
+                    System.out.print(Battleship.C[i] + "|" + RemoveBracket);
                 else if (j == Battleship.ComputerBoard[i].length - 1)
-                    System.out.print(RemoveBracket + "|" + i);
+                    System.out.print(RemoveBracket + "|" + Battleship.C[i]);
                 else
                     System.out.print(RemoveBracket);
             }
@@ -346,14 +372,11 @@ class BattleshipGame {
         System.out.println();
     }
 
-    public static int[] getUserGuess() {
+    public static String getUserGuess() {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter your Coordinates for the hit: ");
-        int[] array = new int[2];
-        for (int j = 0; j < array.length; j++) {
-            array[j] = input.nextInt();
-        }
-        return array;
+        String hitCoordinates = input.next();
+        return hitCoordinates;
     }
 }
 
